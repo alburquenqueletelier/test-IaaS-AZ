@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: frontend-config
 data:
-  VITE_GOOGLE_MAPS_API_KEY: "AIzaSyBWl8oaYygRxU5SxRZEtm47HXMxdQ7RmlU"
+  VITE_GOOGLE_MAPS_API_KEY: "asdf"

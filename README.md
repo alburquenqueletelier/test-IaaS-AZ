@@ -55,6 +55,14 @@ k8s/
      POSTGRES_PASSWORD: <base64_password>
      POSTGRES_DB: <base64_db>
      AUTH_SECRET_KEY: <base64_secret_key>
+   ---
+   apiVersion: v1
+   kind: Secret
+   metadata:
+    name: frontend-secrets
+   type: Opaque
+   data:
+    VITE_GOOGLE_MAPS_API_KEY: <base64_api_key> 
    ```
 
 2. **Login en Azure**
