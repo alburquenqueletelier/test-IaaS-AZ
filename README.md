@@ -9,7 +9,7 @@ Para ver los pasos necesarios para habilitar Docker, construir y subir imágenes
 [Guía Docker: docs/docker/README.md](docs/docker/README.md)
 
 ## Estructura
-
+```
 k8s/
 ├── base/                       # Recursos genéricos o reutilizables
 │   ├── namespace.yaml           # Si quieres usar un namespace dedicado
@@ -30,6 +30,7 @@ k8s/
 │
 └── ingress/                     # Ingress para front + back
     └── ingress.yaml             # Reglas de reverse proxy
+```
 
 ## Requisitos
 
@@ -39,55 +40,72 @@ k8s/
 
 ## Pasos para el despliegue
 
-1. **Login en Azure**
+1. **Crear el archivo de secretos**
+   
+   Antes de desplegar, crea el archivo `base/secrets.yaml` con el siguiente formato (reemplaza los valores por los tuyos en base64):
+   
+   ```yaml
+   apiVersion: v1
+   kind: Secret
+   metadata:
+     name: backend-secrets
+   type: Opaque
+   data:
+     POSTGRES_USER: <base64_usuario>
+     POSTGRES_PASSWORD: <base64_password>
+     POSTGRES_DB: <base64_db>
+     AUTH_SECRET_KEY: <base64_secret_key>
+   ```
+
+2. **Login en Azure**
    ```bash
    az login
    ```
 
-2. **Crear un grupo de recursos**
+3. **Crear un grupo de recursos**
    ```bash
    az group create --name test-k8s-rg --location eastus
    ```
 
-3. **Crear un clúster de Kubernetes**
+4. **Crear un clúster de Kubernetes**
    ```bash
    az aks create --resource-group test-k8s-rg --name test-k8s-cluster --node-count 2 --generate-ssh-keys
    ```
 
-4. **Conectar kubectl al clúster**
+5. **Conectar kubectl al clúster**
    ```bash
    az aks get-credentials --resource-group test-k8s-rg --name test-k8s-cluster
    ```
 
-5. **(Opcional) Crear Namespace**
+6. **(Opcional) Crear Namespace**
    ```bash
    kubectl apply -f base/namespace.yaml
    ```
 
-6. **Crear ConfigMaps y Secrets**
+7. **Crear ConfigMaps y Secrets**
    ```bash
    kubectl apply -f base/configmaps.yaml
    kubectl apply -f base/secrets.yaml
    ```
 
-7. **Desplegar Postgres**
+8. **Desplegar Postgres**
    ```bash
    kubectl apply -f postgres/postgres-dev.yaml
    ```
 
-8. **Desplegar Backend**
+9. **Desplegar Backend**
    ```bash
    kubectl apply -f backend/back-dev.yaml
    kubectl apply -f backend/backend-service.yaml
    ```
 
-9. **Desplegar Frontend**
-   ```bash
-   kubectl apply -f frontend/front-dev.yaml
-   kubectl apply -f frontend/frontend-service.yaml
-   ```
+10. **Desplegar Frontend**
+    ```bash
+    kubectl apply -f frontend/front-dev.yaml
+    kubectl apply -f frontend/frontend-service.yaml
+    ```
 
-10. **Configurar Ingress (requiere NGINX Ingress Controller)**
+11. **Configurar Ingress (requiere NGINX Ingress Controller)**
     - Instala el controlador si no está presente:
       ```bash
       kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.1/deploy/static/provider/cloud/deploy.yaml
@@ -97,6 +115,10 @@ k8s/
       kubectl apply -f ingress/ingress.yaml
       ```
 
+
+## Importante
+
+Antes de desplegar, debes crear el archivo `secrets.yaml` dentro de la carpeta `base` con los secretos necesarios para la aplicación (por ejemplo, credenciales de la base de datos y claves privadas). Puedes usar el ejemplo de formato que aparece en la documentación o en los manifiestos existentes.
 
 ## Notas
 
